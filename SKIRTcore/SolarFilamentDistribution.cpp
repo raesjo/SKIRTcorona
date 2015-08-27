@@ -274,22 +274,22 @@ double SolarFilamentDistribution::density(int m) const
 
 //////////////////////////////////////////////////////////////////////
 
-double SolarFilamentDistribution::temperature(int /*h*/, Position bfr) const
+double SolarFilamentDistribution::gasTemperature(int /*h*/, Position bfr) const
 {
-    return temperature(bfr);
+    return gasTemperature(bfr);
 }
 
 //////////////////////////////////////////////////////////////////////
 
-double SolarFilamentDistribution::temperature(Position bfr) const
+double SolarFilamentDistribution::gasTemperature(Position bfr) const
 {
     int m = _mesh->cellIndex(bfr);
-    return temperature(m);
+    return gasTemperature(m);
 }
 
 //////////////////////////////////////////////////////////////////
 
-double SolarFilamentDistribution::temperature(int m) const
+double SolarFilamentDistribution::gasTemperature(int m) const
 {
 
     //reading in needed quantities to calculate which fraction of the material is in the correct energy state
@@ -308,8 +308,97 @@ double SolarFilamentDistribution::temperature(int m) const
      temp *= 1.0e6;  //units Kelvin
     return temp;
 
-    return rho;
 
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityX(int /*h*/, Position bfr) const
+{
+    return bulkVelocityX(bfr);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityX(Position bfr) const
+{
+    int m = _mesh->cellIndex(bfr);
+    return bulkVelocityX(m);
+}
+
+//////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityX(int m) const
+{
+
+    //reading in needed quantities to calculate which fraction of the material is in the correct energy state
+     double rho = _mesh->value(_densityIndex, m+1);
+     double px = _mesh->value(_tempIndex, m+1);
+
+    //calculating velocity
+     double velocityX = px/rho;
+     velocityX *=1.0;        //UNITS!!!
+    return velocityX;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityY(int /*h*/, Position bfr) const
+{
+    return bulkVelocityY(bfr);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityY(Position bfr) const
+{
+    int m = _mesh->cellIndex(bfr);
+    return bulkVelocityY(m);
+}
+
+//////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityY(int m) const
+{
+
+    //reading in needed quantities to calculate which fraction of the material is in the correct energy state
+     double rho = _mesh->value(_densityIndex, m+1);
+      double py = _mesh->value(_tempIndex+1, m+1);
+
+    //calculating velocity
+     double bulkVelocityY = py/rho;
+     bulkVelocityY *=1.0;        //UNITS!!!
+    return bulkVelocityY;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityZ(int /*h*/, Position bfr) const
+{
+    return bulkVelocityZ(bfr);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityZ(Position bfr) const
+{
+    int m = _mesh->cellIndex(bfr);
+    return bulkVelocityZ(m);
+}
+
+//////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::bulkVelocityZ(int m) const
+{
+
+    //reading in needed quantities to calculate which fraction of the material is in the correct energy state
+     double rho = _mesh->value(_densityIndex, m+1);
+      double pz = _mesh->value(_tempIndex+2, m+1);
+
+    //calculating velocity
+     double bulkVelocityZ = pz/rho;
+     bulkVelocityZ *=1.0;        //UNITS!!!
+    return bulkVelocityZ;
 }
 
 //////////////////////////////////////////////////////////////////////

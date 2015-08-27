@@ -61,11 +61,23 @@ public:
 
     /** This pure virtual function returns the temperature of the
         \f$h\f$'th component of the dust distribution at the position \f${\bf{r}}\f$. */
-    virtual double temperature(int h, Position bfr) const;
+    virtual double gasTemperature(int h, Position bfr) const;
 
     /** This pure virtual function returns the temperature of the dust
       distribution at the position \f${\bf{r}}\f$. */
-    virtual double temperature(Position bfr) const;
+    virtual double gasTemperature(Position bfr) const;
+
+    virtual double bulkVelocityX(int h, Position bfr) const;
+
+    virtual double bulkVelocityX(Position bfr) const;
+
+    virtual double bulkVelocityY(int h, Position bfr) const;
+
+    virtual double bulkVelocityY(Position bfr) const;
+
+    virtual double bulkVelocityZ(int h, Position bfr) const;
+
+    virtual double bulkVelocityZ(Position bfr) const;
 
     /** This pure virtual function generates a random position from the dust distribution, by
         drawing a random point from the three-dimensional probability density \f$p({\bf{r}})\,

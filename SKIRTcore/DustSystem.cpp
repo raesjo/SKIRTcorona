@@ -86,7 +86,10 @@ void DustSystem::setupSelfAfter()
     // Resize the tables that hold essential dust cell properties
     _volumev.resize(_Ncells);
     _rhovv.resize(_Ncells,_Ncomp);
-    _temperature.resize(_Ncells,_Ncomp);
+    _gasTemperaturevv.resize(_Ncells,_Ncomp);
+    _bulkVelocityX.resize(_Ncells,_Ncomp);
+    _bulkVelocityY.resize(_Ncells,_Ncomp);
+    _bulkVelocityZ.resize(_Ncells,_Ncomp);
 
     // Set the volume of the cells (parallelized over different threads, except when multiprocessing is enabled)
     find<Log>()->info("Calculating the volume of the cells...");
@@ -112,7 +115,7 @@ void DustSystem::setupSelfAfter()
         find<Log>()->info("Setting the value of the density in the cells...");
         find<ParallelFactory>()->parallel()->call(this, &DustSystem::setSampleDensityBody, _assigner);
     }
-    find<ParallelFactory>()->parallel()->call(this, &DustSystem::setSampleTemperatureBody, _assigner);
+    find<ParallelFactory>()->parallel()->call(this, &DustSystem::setSampleGasTemperatureBody, _assigner);
 
     // Wait for the other processes to reach this point
     comm->wait("the calculation of the dust cell densities");
@@ -188,7 +191,7 @@ void DustSystem::setSampleDensityBody(size_t m)
 
 ////////////////////////////////////////////////////////////////////
 
-void DustSystem::setSampleTemperatureBody(size_t m)
+void DustSystem::setSampleGasTemperatureBody(size_t m)
 {
     if (m%100000==0)
     {
@@ -201,16 +204,57 @@ void DustSystem::setSampleTemperatureBody(size_t m)
         for (int n=0; n<_Nrandom; n++)
         {
             Position bfr = _grid->randomPositionInCell(m);
-            for (int h=0; h<_Ncomp; h++) sumv[h] += _dd->temperature(h,bfr);
+            for (int h=0; h<_Ncomp; h++) sumv[h] += _dd->gasTemperature(h,bfr);
         }
         for (int h=0; h<_Ncomp; h++)
         {
-            _temperature(m,h) = sumv[h]/_Nrandom;
+            _gasTemperaturevv(m,h) = sumv[h]/_Nrandom;
         }
     }
     else
     {
-        for (int h=0; h<_Ncomp; h++) _temperature(m,h) = 0;
+        for (int h=0; h<_Ncomp; h++) _gasTemperaturevv(m,h) = 0;
+    }
+}
+
+////////////////////////////////////////////////////////////////////
+
+void DustSystem::setSampleBulkVelocityBody(size_t m)
+{
+    if (m%100000==0)
+    {
+        find<Log>()->info("  Computing bulk velocity for cell " + QString::number(m)
+                          + " (" + QString::number(floor(100.*_assigner->relativeIndex(m)/_assigner->nvalues())) + "%)");
+    }
+    if (_grid->weight(m) > 0)
+    {
+        Array sumv1(_Ncomp);
+        Array sumv2(_Ncomp);
+        Array sumv3(_Ncomp);
+        for (int n=0; n<_Nrandom; n++)
+        {
+            Position bfr = _grid->randomPositionInCell(m);
+            for (int h=0; h<_Ncomp; h++){
+                sumv1[h] += _dd->bulkVelocityX(h,bfr);
+                sumv2[h] += _dd->bulkVelocityY(h,bfr);
+                sumv3[h] += _dd->bulkVelocityZ(h,bfr);
+            }
+
+        }
+        for (int h=0; h<_Ncomp; h++)
+        {
+            _bulkVelocityX(m,h) = sumv1[h]/_Nrandom;
+            _bulkVelocityY(m,h) = sumv2[h]/_Nrandom;
+            _bulkVelocityZ(m,h) = sumv3[h]/_Nrandom;
+        }
+    }
+    else
+    {
+        for (int h=0; h<_Ncomp; h++){
+            _bulkVelocityX(m,h) = 0;
+            _bulkVelocityY(m,h) = 0;
+            _bulkVelocityZ(m,h) = 0;
+        }
     }
 }
 
@@ -533,7 +577,7 @@ namespace
             double thermalVelocity = sqrt((2.0*Units::k()*_ds->temperature(m,0.0))/Units::massproton());
             double dopplerwidth = (thermalVelocity * linecentre)/Units::c();
             double relativeFrequency = (Frequency - linecentre)/dopplerwidth;
-            double parallelVelocity = in.kx()+in.ky()+in.kz();                                       //needs to add bulk velocity
+            double parallelVelocity = in.kx()*_ds->bulkVelocity(m,0.0).x()+in.ky()*_ds->bulkVelocity(m,0.0).y() + in.kz()*_ds->bulkVelocity(m,0.0).z();
             double observedFrequency = relativeFrequency - parallelVelocity/thermalVelocity - (relativeFrequency*parallelVelocity)/Units::c();
 
             double naturalLineWidth = 9.936e7;
@@ -963,7 +1007,15 @@ double DustSystem::density(int m) const
 
 double DustSystem::temperature(int m, int h) const
 {
-    return m >= 0 ? _temperature(m,h) : 0;
+    return m >= 0 ? _gasTemperaturevv(m,h) : 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+Vec DustSystem::bulkVelocity(int m, int h) const
+{
+    Vec velocity = Direction(_bulkVelocityX(m,h),_bulkVelocityY(m,h),_bulkVelocityZ(m,h));
+    return m >= 0 ? velocity : Vec(0.0,0.0,0.0);
 }
 
 //////////////////////////////////////////////////////////////////////

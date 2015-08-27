@@ -115,7 +115,9 @@ private:
 
     /** This function serves as the parallelization body for setting the temperature value of each cell
         by taking random density sample. */
-    void setSampleTemperatureBody(size_t m);
+    void setSampleGasTemperatureBody(size_t m);
+
+    void setSampleBulkVelocityBody(size_t m);
 
     /** This function writes out a simple text file, named <tt>prefix_ds_convergence.dat</tt>,
         providing a convergence check on the dust system. The function calculates the total dust
@@ -313,6 +315,10 @@ public:
         non-existing cell outside the grid, the value zero is returned. */
     double temperature(int m, int h) const;
 
+    /** This function returns the gas temperature corresponding to dust component \f$h\f$ of the dust
+        cell with cell number \f$m\f$. If \f$m=-1\f$, i.e. if the cell number corresponds to a
+        non-existing cell outside the grid, the value zero is returned. */
+    Vec bulkVelocity(int m, int h) const;
 
     /** This function returns the value of the voigt function, using the natural line width and photon
         frequency.
@@ -430,7 +436,8 @@ protected:
     int _Ncells;
     Array _volumev;     // volume for each cell (indexed on m)
     Table<2> _rhovv;    // density for each cell and each dust component (indexed on m,h)
-    Table<2> _temperature; // temperature for each cell and each dust component (indexed on m,h)
+    Table<2> _gasTemperaturevv; // temperature for each cell and each dust component (indexed on m,h)
+    Table<2> _bulkVelocityX,_bulkVelocityY,_bulkVelocityZ;
     std::vector<qint64> _crossed;
     QMutex _crossedMutex;
 };

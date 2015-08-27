@@ -175,14 +175,47 @@ public:
 
     /** This function returns the temperature of the \f$h\f$'th component
         of the dust distribution at the position \f${\bf{r}}\f$. */
-    double temperature(int h, Position bfr) const;
+    double gasTemperature(int h, Position bfr) const;
 
     /** This function returns the temperature of the dust distribution
         at the position \f${\bf{r}}\f$. .*/
-    double temperature(Position bfr) const;
+    double gasTemperature(Position bfr) const;
 
     /** This function returns the temperature of the mesh cell m. */
-    double temperature(int m) const;
+    double gasTemperature(int m) const;
+
+    /** This function returns the bulk velocity in the x-direction of the \f$h\f$'th component
+        of the dust distribution at the position \f${\bf{r}}\f$. */
+    double bulkVelocityX(int h, Position bfr) const;
+
+    /** This function returns the bulk velocity in the x-direction of the dust distribution
+        at the position \f${\bf{r}}\f$. .*/
+    double bulkVelocityX(Position bfr) const;
+
+    /** This function returns the bulk velocity in the x-direction of the mesh cell m. */
+    double bulkVelocityX(int m) const;
+
+    /** This function returns the bulk velocity in the y-direction of the \f$h\f$'th component
+        of the dust distribution at the position \f${\bf{r}}\f$. */
+    double bulkVelocityY(int h, Position bfr) const;
+
+    /** This function returns the bulk velocity in the y-direction of the dust distribution
+        at the position \f${\bf{r}}\f$. .*/
+    double bulkVelocityY(Position bfr) const;
+
+    /** This function returns the bulk velocity in the y-direction of the mesh cell m. */
+    double bulkVelocityY(int m) const;
+
+    /** This function returns the bulk velocity in the y-direction of the \f$h\f$'th component
+        of the dust distribution at the position \f${\bf{r}}\f$. */
+    double bulkVelocityZ(int h, Position bfr) const;
+
+    /** This function returns the bulk velocity in the y-direction of the dust distribution
+        at the position \f${\bf{r}}\f$. .*/
+    double bulkVelocityZ(Position bfr) const;
+
+    /** This function returns the bulk velocity in the y-direction of the mesh cell m. */
+    double bulkVelocityZ(int m) const;
 
     /** This function generates a random position from the dust distribution. It randomly chooses a
         mesh cell from the normalized cumulative density distribution constructed during the setup

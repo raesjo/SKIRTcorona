@@ -28,13 +28,44 @@ int DustDistribution::indexformix(const DustMix* dustmix)
 //////////////////////////////////////////////////////////////////////
 
 
-double DustDistribution::temperature(int h, Position bfr) const{
+double DustDistribution::gasTemperature(int h, Position bfr) const{
     return 0.0;
 }
 
 
-double DustDistribution::temperature(Position bfr) const{
+double DustDistribution::gasTemperature(Position bfr) const{
     return 0.0;
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+double DustDistribution::bulkVelocityX(int h, Position bfr) const{
+    return 0.0;
+}
+
+
+double DustDistribution::bulkVelocityX(Position bfr) const{
+    return 0.0;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+double DustDistribution::bulkVelocityY(int h, Position bfr) const{
+    return 0.0;
+}
+
+
+double DustDistribution::bulkVelocityY(Position bfr) const{
+    return 0.0;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+double DustDistribution::bulkVelocityZ(int h, Position bfr) const{
+    return 0.0;
+}
+
+
+double DustDistribution::bulkVelocityZ(Position bfr) const{
+    return 0.0;
+}

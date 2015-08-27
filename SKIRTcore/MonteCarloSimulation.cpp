@@ -482,7 +482,7 @@ void MonteCarloSimulation::simulatescattering(PhotonPackage* pp)
     //double freq = pp->ell();
     //double velocity1 = thermalvelocitydistribution(1.0,freq,0.0);
     //Direction atomvelocity = mix->scatteringatomdirection(velocity1, pp->direction() , thermal_velocity);
-
+    //pp->setWavelength(1.0);
     pp->scatter(bfknew);
 }
 

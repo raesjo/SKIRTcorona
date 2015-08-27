@@ -108,6 +108,9 @@ public:
     /** This function sets the luminosity of the photon package to a new value. */
     void setLuminosity(double L);
 
+    /** This function sets the wavelength of the photon package to a new value. */
+    void setWavelength(double ell);
+
     // ------- Getting trivial properties -------
 
     /** This function returns true if the photon package has a stellar origin, false otherwise. */
