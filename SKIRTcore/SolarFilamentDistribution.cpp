@@ -236,9 +236,61 @@ double SolarFilamentDistribution::density(int m) const
 {
 
 
-    double me = 9.10938291e-31;  //mass electron, kilogram
-    double k = 4.13566751691e-15;  // planck constant, eV * second
-    double h = 8.617332478e-5;  //boltzmann constant, eV/kelvin
+   // double me = 9.10938291e-31;  //mass electron, kilogram
+   // double k = 4.13566751691e-15;  // planck constant, eV * second
+   // double h = 8.617332478e-5;  //boltzmann constant, eV/kelvin
+
+    //reading in needed quantities to calculate which fraction of the material is in the correct energy state
+    double rho = _mesh->value(_densityIndex, m+1);
+    // double px = _mesh->value(_tempIndex, m+1);
+    // double py = _mesh->value(_tempIndex+1, m+1);
+    // double pz = _mesh->value(_tempIndex+2, m+1);
+    // double energy = _mesh->value(_tempIndex+3, m+1);
+    // double Bx = _mesh->value(_tempIndex+4, m+1);
+    // double By = _mesh->value(_tempIndex+5, m+1);
+    // double Bz = _mesh->value(_tempIndex+6, m+1);
+
+    //calculating pressure and temperature
+    // double pressure = (energy - ((px*px+py*py+pz*pz)/(2.0*rho)) - ((Bx*Bx+By*By+Bz*Bz)/2.0)) * (2.0/3.0);  //units erg cm^-3
+    // double temp = pressure/rho;  //units 10^6 Kelvin
+    // temp *= 1.0e6;  //units Kelvin
+
+
+
+    // Calculating fractions (dimensionless)
+    // double sahafraction = (1.0/(1.2*rho*2.341668e-9)) * pow(((2.0*M_PI * me * k * temp)/(h*h)),3.0/2.0) * exp(-13.6/(k*temp));
+    // double boltzmannfraction = 4.0*exp(-10.2/(k*temp));
+
+    //rho *= _densityUnits;
+   // double adjusted_rho = rho * sahafraction * boltzmannfraction;
+
+    //double adjusted_rho = rho * (1.0/(1.2*rho)) * pow(((2.0*M_PI * me * k * temp)/(h*h)),3.0/2.0) * exp(-13.6/(k*temp)); //saha
+    //adjusted_rho *= 4.0*exp(-10.2/(k*temp));  //boltzmann
+
+   // return adjusted_rho;
+    return rho;
+
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::temperature(int /*h*/, Position bfr) const
+{
+    return temperature(bfr);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::temperature(Position bfr) const
+{
+    int m = _mesh->cellIndex(bfr);
+    return temperature(m);
+}
+
+//////////////////////////////////////////////////////////////////
+
+double SolarFilamentDistribution::temperature(int m) const
+{
 
     //reading in needed quantities to calculate which fraction of the material is in the correct energy state
      double rho = _mesh->value(_densityIndex, m+1);
@@ -254,23 +306,13 @@ double SolarFilamentDistribution::density(int m) const
      double pressure = (energy - ((px*px+py*py+pz*pz)/(2.0*rho)) - ((Bx*Bx+By*By+Bz*Bz)/2.0)) * (2.0/3.0);  //units erg cm^-3
      double temp = pressure/rho;  //units 10^6 Kelvin
      temp *= 1.0e6;  //units Kelvin
+    return temp;
 
-
-
-    // Calculating fractions (dimensionless)
-     double sahafraction = (1.0/(1.2*rho*2.341668e-9)) * pow(((2.0*M_PI * me * k * temp)/(h*h)),3.0/2.0) * exp(-13.6/(k*temp));
-     double boltzmannfraction = 4.0*exp(-10.2/(k*temp));
-
-    //rho *= _densityUnits;
-   // double adjusted_rho = rho * sahafraction * boltzmannfraction;
-
-    //double adjusted_rho = rho * (1.0/(1.2*rho)) * pow(((2.0*M_PI * me * k * temp)/(h*h)),3.0/2.0) * exp(-13.6/(k*temp)); //saha
-    //adjusted_rho *= 4.0*exp(-10.2/(k*temp));  //boltzmann
-
-   // return adjusted_rho;
     return rho;
 
 }
+
+//////////////////////////////////////////////////////////////////////
 
 Position SolarFilamentDistribution::generatePosition() const
 {

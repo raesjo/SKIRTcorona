@@ -26,3 +26,15 @@ int DustDistribution::indexformix(const DustMix* dustmix)
 }
 
 //////////////////////////////////////////////////////////////////////
+
+
+double DustDistribution::temperature(int h, Position bfr) const{
+    return 0.0;
+}
+
+
+double DustDistribution::temperature(Position bfr) const{
+    return 0.0;
+}
+
+///////////////////////////////////////////////////////////////////////

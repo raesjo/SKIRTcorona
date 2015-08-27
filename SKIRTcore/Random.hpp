@@ -134,7 +134,7 @@ public:
     Position position(const Box& box);
 
     /** This function returns a random number according to the probability distribution
-        \f[ W(\theta) = 1 + p cos(\theta).  \f], using the inversion technique. */
+        \f[ W(\theta) = 1 + p cos(\theta)^2.  \f], using the inversion technique. */
     double scpf(double p);
 
 

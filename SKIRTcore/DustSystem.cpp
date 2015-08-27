@@ -112,6 +112,7 @@ void DustSystem::setupSelfAfter()
         find<Log>()->info("Setting the value of the density in the cells...");
         find<ParallelFactory>()->parallel()->call(this, &DustSystem::setSampleDensityBody, _assigner);
     }
+    find<ParallelFactory>()->parallel()->call(this, &DustSystem::setSampleTemperatureBody, _assigner);
 
     // Wait for the other processes to reach this point
     comm->wait("the calculation of the dust cell densities");
@@ -184,6 +185,34 @@ void DustSystem::setSampleDensityBody(size_t m)
     }
 }
 
+
+////////////////////////////////////////////////////////////////////
+
+void DustSystem::setSampleTemperatureBody(size_t m)
+{
+    if (m%100000==0)
+    {
+        find<Log>()->info("  Computing gas temperature for cell " + QString::number(m)
+                          + " (" + QString::number(floor(100.*_assigner->relativeIndex(m)/_assigner->nvalues())) + "%)");
+    }
+    if (_grid->weight(m) > 0)
+    {
+        Array sumv(_Ncomp);
+        for (int n=0; n<_Nrandom; n++)
+        {
+            Position bfr = _grid->randomPositionInCell(m);
+            for (int h=0; h<_Ncomp; h++) sumv[h] += _dd->temperature(h,bfr);
+        }
+        for (int h=0; h<_Ncomp; h++)
+        {
+            _temperature(m,h) = sumv[h]/_Nrandom;
+        }
+    }
+    else
+    {
+        for (int h=0; h<_Ncomp; h++) _temperature(m,h) = 0;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////
 
@@ -501,7 +530,7 @@ namespace
         double operator() (int m, Direction in)
         {
             double linecentre = 2.455e15;
-            double thermalVelocity = sqrt((2.0*Units::k()*_ds->temperature(m,0.0))/Units::massproton()); //density must be temperature
+            double thermalVelocity = sqrt((2.0*Units::k()*_ds->temperature(m,0.0))/Units::massproton());
             double dopplerwidth = (thermalVelocity * linecentre)/Units::c();
             double relativeFrequency = (Frequency - linecentre)/dopplerwidth;
             double parallelVelocity = in.kx()+in.ky()+in.kz();                                       //needs to add bulk velocity
@@ -939,14 +968,7 @@ double DustSystem::temperature(int m, int h) const
 
 //////////////////////////////////////////////////////////////////////
 
-double DustSystem::temperature(int m) const
-{
-    double temp = 0;
-    if (m >= 0)
-        for (int h=0; h<_Ncomp; h++) temp += _temperature(m,h);
-    temp /= _Ncomp;
-    return temp;
-}
+
 
 double DustSystem::voigt(double a, double x) const
 {

@@ -173,6 +173,17 @@ public:
         total energy.*/
     double density(int m) const;
 
+    /** This function returns the temperature of the \f$h\f$'th component
+        of the dust distribution at the position \f${\bf{r}}\f$. */
+    double temperature(int h, Position bfr) const;
+
+    /** This function returns the temperature of the dust distribution
+        at the position \f${\bf{r}}\f$. .*/
+    double temperature(Position bfr) const;
+
+    /** This function returns the temperature of the mesh cell m. */
+    double temperature(int m) const;
+
     /** This function generates a random position from the dust distribution. It randomly chooses a
         mesh cell from the normalized cumulative density distribution constructed during the setup
         phase. Then a position is determined randomly within the cell boundaries. */

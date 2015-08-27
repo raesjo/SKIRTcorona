@@ -122,6 +122,7 @@ public:
         {
             Segment& segment = _v[i];
             double dtau = kapparho(segment.m) * segment.ds;
+ //           double dtau = Kapparho(segment.m, _bfk) * segment.ds;
             tau += dtau;
             segment.dtau = dtau;
             segment.tau = tau;
