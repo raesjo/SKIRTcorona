@@ -214,7 +214,7 @@ Position Random::position(const Box& box)
 //////////////////////////////////////////////////////////////////////
 
 double
-Random::scatterphasefunction(double p)
+Random::scpf(double p)
 {
     double random;
     if (p==0.0){

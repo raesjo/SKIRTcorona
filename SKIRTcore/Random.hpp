@@ -135,7 +135,7 @@ public:
 
     /** This function returns a random number according to the probability distribution
         \f[ W(\theta) = 1 + p cos(\theta).  \f], using the inversion technique. */
-    double scatterphasefunction(double p);
+    double scpf(double p);
 
 
     //======================== Data Members ========================

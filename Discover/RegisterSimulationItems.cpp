@@ -65,6 +65,7 @@
 #include "GenGeometry.hpp"
 #include "GenLinCubDustGridStructure.hpp"
 #include "GreyBodyDustEmissivity.hpp"
+#include "HydrogenIonsDustMix.hpp"
 #include "IdenticalAssigner.hpp"
 #include "InstrumentFrame.hpp"
 #include "InstrumentSystem.hpp"
@@ -136,6 +137,7 @@
 #include "SimpleInstrument.hpp"
 #include "SingleGrainSizeDistribution.hpp"
 #include "SmoothingKernel.hpp"
+#include "SolarFilamentDistribution.hpp"
 #include "SpectralLuminosityStellarCompNormalization.hpp"
 #include "SpheBackgroundGeometry.hpp"
 #include "SpheGeometry.hpp"
@@ -318,6 +320,7 @@ void RegisterSimulationItems::registerAll()
     add<AdaptiveMeshDustDistribution>();
     add<SphericalAdaptiveMeshDustDistribution>();
     add<VoronoiDustDistribution>();
+    add<SolarFilamentDistribution>();
 
     // mesh file representations
     add<AdaptiveMeshFile>(false);
@@ -360,6 +363,7 @@ void RegisterSimulationItems::registerAll()
     add<ZubkoDustMix>();
     add<TrustDustMix>();
     add<ConfigurableDustMix>();
+    add<HydrogenIonsDustMix>();
 
     // grain compositions
     add<GrainComposition>(false);

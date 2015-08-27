@@ -786,17 +786,17 @@ double DustMix::hydrogenscatterangle(double x, double a)
     // Scatters in the wing
     if (x>wingfrequency){
         // p=1
-        scatterangle = _random->scatterphasefunction(1.0);
+        scatterangle = _random->scpf(1.0);
     }
     // Scatters in line centre
     else {
         // transition to 2P1/2 state, p = 0, isotropic scatter
         if(randomnumber > 2.0/3.0){
-            scatterangle = _random->scatterphasefunction(0.0);
+            scatterangle = _random->scpf(0.0);
         }
         // transition to P3/2 state, p = 3/7
         else{
-            scatterangle = _random->scatterphasefunction(3.0/7.0);
+            scatterangle = _random->scpf(3.0/7.0);
         }
     }
 

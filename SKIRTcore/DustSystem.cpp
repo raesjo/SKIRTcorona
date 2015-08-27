@@ -501,7 +501,7 @@ namespace
         double operator() (int m, Direction in)
         {
             double linecentre = 2.455e15;
-            double thermalVelocity = sqrt((2.0*Units::k()*_ds->density(m,0.0))/Units::massproton()); //density must be temperature
+            double thermalVelocity = sqrt((2.0*Units::k()*_ds->temperature(m,0.0))/Units::massproton()); //density must be temperature
             double dopplerwidth = (thermalVelocity * linecentre)/Units::c();
             double relativeFrequency = (Frequency - linecentre)/dopplerwidth;
             double parallelVelocity = in.kx()+in.ky()+in.kz();                                       //needs to add bulk velocity

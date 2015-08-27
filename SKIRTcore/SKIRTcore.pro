@@ -297,7 +297,9 @@ HEADERS += \
     RandomAssigner.hpp \
     TextOutFile.hpp \
     SphericalAdaptiveMesh.hpp \
-    SphericalAdaptiveMeshDustDistribution.hpp
+    SphericalAdaptiveMeshDustDistribution.hpp \
+    HydrogenIonsDustMix.hpp \
+    SolarFilamentDistribution.hpp
 
 SOURCES += \
     AdaptiveMesh.cpp \
@@ -553,4 +555,6 @@ SOURCES += \
     RandomAssigner.cpp \
     TextOutFile.cpp \
     SphericalAdaptiveMesh.cpp \
-    SphericalAdaptiveMeshDustDistribution.cpp
+    SphericalAdaptiveMeshDustDistribution.cpp \
+    HydrogenIonsDustMix.cpp \
+    SolarFilamentDistribution.cpp
