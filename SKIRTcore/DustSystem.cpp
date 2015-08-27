@@ -86,6 +86,7 @@ void DustSystem::setupSelfAfter()
     // Resize the tables that hold essential dust cell properties
     _volumev.resize(_Ncells);
     _rhovv.resize(_Ncells,_Ncomp);
+    _temperature.resize(_Ncells,_Ncomp);
 
     // Set the volume of the cells (parallelized over different threads, except when multiprocessing is enabled)
     find<Log>()->info("Calculating the volume of the cells...");
@@ -182,6 +183,7 @@ void DustSystem::setSampleDensityBody(size_t m)
         for (int h=0; h<_Ncomp; h++) _rhovv(m,h) = 0;
     }
 }
+
 
 ////////////////////////////////////////////////////////////////////
 
@@ -475,6 +477,7 @@ namespace
         const DustSystem* _ds;
         int _Ncomp;
         QVarLengthArray<double,8> _kappaextv;
+        double Frequency;
 
     public:
         // constructor
@@ -483,6 +486,7 @@ namespace
         {
             for (int h=0; h<_Ncomp; h++)
                 _kappaextv[h] = _ds->mix(h)->kappaext(ell);
+            Frequency = Units::c()/ell;
         }
 
         // call-back function
@@ -493,6 +497,22 @@ namespace
             for (int h=0; h<_Ncomp; h++)
                 result += _kappaextv[h] * _ds->density(m,h);
             return result;
+        }
+        double operator() (int m, Direction in)
+        {
+            double linecentre = 2.455e15;
+            double thermalVelocity = sqrt((2.0*Units::k()*_ds->density(m,0.0))/Units::massproton()); //density must be temperature
+            double dopplerwidth = (thermalVelocity * linecentre)/Units::c();
+            double relativeFrequency = (Frequency - linecentre)/dopplerwidth;
+            double parallelVelocity = in.kx()+in.ky()+in.kz();                                       //needs to add bulk velocity
+            double observedFrequency = relativeFrequency - parallelVelocity/thermalVelocity - (relativeFrequency*parallelVelocity)/Units::c();
+
+            double naturalLineWidth = 9.936e7;
+            double relativeLineWidth = naturalLineWidth/(2.0*dopplerwidth);
+            double constant = (0.4162 * sqrt(M_PI) * 1.60217656535e-19)/ ( 4*M_PI*8.854187817624e-12*Units::masselectron()*Units::c() );
+
+            double rhov = (constant / dopplerwidth) * _ds->voigt(relativeLineWidth,observedFrequency);
+            return rhov;
         }
     };
 }
@@ -908,6 +928,35 @@ double DustSystem::density(int m) const
     if (m >= 0)
         for (int h=0; h<_Ncomp; h++) rho += _rhovv(m,h);
     return rho;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double DustSystem::temperature(int m, int h) const
+{
+    return m >= 0 ? _temperature(m,h) : 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+double DustSystem::temperature(int m) const
+{
+    double temp = 0;
+    if (m >= 0)
+        for (int h=0; h<_Ncomp; h++) temp += _temperature(m,h);
+    temp /= _Ncomp;
+    return temp;
+}
+
+double DustSystem::voigt(double a, double x) const
+{
+    double zeta =  (pow(x,2.0) - 0.855) / (pow(x,2.0) + 3.42);
+    double q = 0.0;
+    if(zeta > 0.0){
+        double PiZeta = 5.678 * pow(zeta,4.0) - 9.207 * pow(zeta,3.0) + 4.421 * pow(zeta,2.0) + 0.1117 * zeta;
+        q = (1.0+(21.0/x*x)) * (a/(M_PI*(x*x+1.0)))*PiZeta;
+    }
+    return (q * sqrt(M_PI) + exp(-x*x));
 }
 
 //////////////////////////////////////////////////////////////////////

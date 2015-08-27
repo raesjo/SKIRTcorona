@@ -367,6 +367,19 @@ private:
         at wavelength index \f$\ell\f$. */
     double samplePhi(int ell, double theta, double polDegree) const;
 
+    /** This function returns the angle under which a photon scatters after scattering on a hydrogen atom. It uses
+        the scatterdirectiondistribution37 and scatterdirectiondistribution1 functions to determine the correct angle
+        depending upon the frequency and natural line width.
+    */
+    double hydrogenscatterangle(double x, double a);
+
+    /** The function returns a direction that stands for the thermal velocity of the atom responible for the scattering.
+        It uses the velocity component in the propagation direction of the photon (before scattering), the propagation
+        direction itself and the temperature. The velocity component in the propagation direction of the photon is to
+        be calculated using the thermalvelocitydistribution function of MonteCarloSimulation.cpp.
+    */
+    Direction scatteringatomdirection(double length, Direction vector, double thermal_velocity);
+
     //======================== Data Members ========================
 
 private:
@@ -385,6 +398,9 @@ private:
     std::vector<Array> _sigmaabsvv;     // indexed on c and ell
     std::vector<Array> _sigmascavv;     // indexed on c and ell
     std::vector<Array> _asymmparvv;     // indexed on c and ell
+    Array _distribution_Z;
+    Array _distribution_37_Y;
+    Array _distribution_1_Y;
 
     // cached derived properties calculated in setupSelfAfter()
     double _mu;

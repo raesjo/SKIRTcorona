@@ -73,7 +73,7 @@ protected:
         differentiate between 3 cases to calculate the number of chunks:
         -# if the current simulation is <b>not parallelized</b> at all, i.e. the number of processes as
         well as the number of threads per process is one, there is no reason to split the photon
-        packages into chunks, so the number of chunks per wavelength is set to one;
+        packages into chunks, so the double MonteCarloSimulation::thermalvelocitydistribution(double a,double x)number of chunks per wavelength is set to one;
         -# if <b>only multithreading</b> is used (the number of processes is one), the number of chunks
         is determined by the condition that a decent load balancing is obtained among the execution
         threads. Therefore, we dictate that at least 10 chunks (across all wavelengths) are executed by
@@ -340,6 +340,8 @@ protected:
         information in the instrument system and in the dust system so that the results of the
         simulation can be analyzed. */
     void write();
+
+    double thermalvelocitydistribution(double a,double x, double u_0);
 
     //======================== Data Members ========================
 

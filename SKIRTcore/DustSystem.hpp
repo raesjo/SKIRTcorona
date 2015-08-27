@@ -304,6 +304,23 @@ public:
         the value zero is returned. */
     double density(int m) const;
 
+    /** This function returns the dust temperature corresponding to dust component \f$h\f$ of the dust
+        cell with cell number \f$m\f$. If \f$m=-1\f$, i.e. if the cell number corresponds to a
+        non-existing cell outside the grid, the value zero is returned. */
+    double temperature(int m, int h) const;
+
+    /** This function returns the average temperature of all dust components of the dust cell with
+        cell number \f$m\f$. At the moment, temperature is only used with one component dusts. If
+        \f$m=-1\f$, i.e. if the cell number corresponds to a non-existing cell outside the grid,
+        the value zero is returned. */
+    double temperature(int m) const;
+
+
+    /** This function returns the value of the voigt function, using the natural line width and photon
+        frequency.
+        */
+    double voigt(double a, double x) const;
+
     /** This function calculates the optical depth
         \f$\tau_{\ell,{\text{path}}}({\boldsymbol{r}},{\boldsymbol{k}})\f$ at wavelength index
         \f$\ell\f$ along a path through the dust system starting at the position
@@ -374,6 +391,8 @@ public:
         polarization; false otherwise. */
     bool polarization() const;
 
+
+
 private:
     /** This function is used to assemble the container that stores the densities of all dust cells for
         each dust component. If multiprocessing is enabled, the calculation of these densities can be
@@ -413,6 +432,7 @@ protected:
     int _Ncells;
     Array _volumev;     // volume for each cell (indexed on m)
     Table<2> _rhovv;    // density for each cell and each dust component (indexed on m,h)
+    Table<2> _temperature; // temperature for each cell and each dust component (indexed on m,h)
     std::vector<qint64> _crossed;
     QMutex _crossedMutex;
 };

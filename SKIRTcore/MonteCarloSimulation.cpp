@@ -472,8 +472,17 @@ void MonteCarloSimulation::simulatescattering(PhotonPackage* pp)
     // Randomly select a dust mix; the probability of each dust component h is weighted by kappasca(h)*rho(m,h)
     DustMix* mix = _ds->randomMixForPosition(pp->position(), pp->ell());
 
+ //   int cellnumber = _ds->whichcell(pp->position());
+ //   int dens = _ds->density(cellnumber,0);
     // Now perform the scattering using this dust mix
     Direction bfknew = mix->scatteringDirectionAndPolarization(pp, pp);
+    // Direction bfkold = pp->direction();
+
+
+    //double freq = pp->ell();
+    //double velocity1 = thermalvelocitydistribution(1.0,freq,0.0);
+    //Direction atomvelocity = mix->scatteringatomdirection(velocity1, pp->direction() , thermal_velocity);
+
     pp->scatter(bfknew);
 }
 
@@ -487,3 +496,35 @@ void MonteCarloSimulation::write()
 }
 
 ////////////////////////////////////////////////////////////////////
+
+double MonteCarloSimulation::thermalvelocitydistribution(double a,double x, double u_0)
+{
+
+    bool keepvalue = false;
+    double u_parallel = 0.0;
+    while(!keepvalue){
+
+        double R = _random->uniform();
+        double theta_0 = atan((u_0-x)/a);
+        double p = (theta_0 + 0.5*M_PI)  *  (1.0/((1.0-exp(-u_0*u_0))*theta_0  +  (1.0+exp(-u_0*u_0))*0.5*M_PI));
+        double theta = 0.0;
+        if(R>p){
+            theta = (M_PI*0.5 - theta_0) * _random->uniform() + theta_0;
+        }
+        else{
+           theta = (M_PI*0.5 + theta_0) * _random->uniform() - (theta_0*0.5);
+        }
+        u_parallel = a*tan(theta) + x;
+        double Q = _random->uniform();
+
+        if(  u_parallel <u_0 && Q<(exp(u_parallel*u_parallel))  ){
+           keepvalue = true;
+        }
+        else if(u_parallel > u_0  && Q < ((exp(u_parallel*u_parallel))/(exp(u_0*u_0))) ) {
+            keepvalue = true;
+
+        }
+    }
+
+    return u_parallel;
+}

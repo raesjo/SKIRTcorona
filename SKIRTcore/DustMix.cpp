@@ -37,6 +37,22 @@ void DustMix::setupSelfBefore()
     _lambdagrid = find<WavelengthGrid>();
     _Nlambda = _lambdagrid->Nlambda();
     _random = find<Random>();
+
+    int steps = 1000;
+    double Z = 0.;
+    _distribution_Z.resize(steps);
+    _distribution_37_Y.resize(steps);
+    _distribution_1_Y.resize(steps);
+
+    for (int i = 0; i<(steps+1); i++)
+    {
+         _distribution_Z[i] = Z;
+         _distribution_37_Y[i] = (Z + (3.0/14.0)*cos(Z)*sin(Z) + (3.0/14.0) * Z) / (M_PI * ((3.0/14.0)+1));
+         _distribution_1_Y[i] = (Z + (1.0/2.0)*cos(Z)*sin(Z) + (1.0/2.0) * Z) / (M_PI * ((1.0/2.0)+1));
+         Z += M_PI/steps;
+    }
+
+
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -758,4 +774,71 @@ double DustMix::samplePhi(int ell, double theta, double polDegree) const
     return _random->cdf(_phiv, _phiXv);
 }
 
-//////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+double DustMix::hydrogenscatterangle(double x, double a)
+{
+    double randomnumber = _random->uniform();
+    double wingfrequency = 1.59 - 0.6*log(a) - 0.03*log(a) * log(a);
+    double scatterangle;
+
+    // Scatters in the wing
+    if (x>wingfrequency){
+        // p=1
+        scatterangle = _random->scatterphasefunction(1.0);
+    }
+    // Scatters in line centre
+    else {
+        // transition to 2P1/2 state, p = 0, isotropic scatter
+        if(randomnumber > 2.0/3.0){
+            scatterangle = _random->scatterphasefunction(0.0);
+        }
+        // transition to P3/2 state, p = 3/7
+        else{
+            scatterangle = _random->scatterphasefunction(3.0/7.0);
+        }
+    }
+
+    return scatterangle;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+Direction DustMix::scatteringatomdirection(double length, Direction vector, double thermal_velocity)
+{
+
+    double A,B,C;
+    vector.cartesian(A,B,C);
+    double length1, length2, length3;
+    Direction vec1,vec2,vec3;
+    double result_x, result_y, result_z;
+    vec1 = Direction(A,B,C);
+
+    if(C!=0.0){
+       vec2 = Direction(0.0,1.0,-B/C);
+       vec3 = Direction( (((-B*B)/C)-C) , ((A*B)/C) , A);
+    }
+    else if(A!=0.0){
+        vec2 = Direction(0.0,0.0,1.0);
+        vec3 = Direction(B, -A  ,    0.0    );
+    }
+    else{
+        vec2 = Direction(1.0,0.0, 0.0);
+        vec3 = Direction( 0.0 , 0.0 , 1.0 );
+    }
+
+    length1 = length * (1.0/sqrt(vec1.kx() * vec1.kx() + vec1.ky() * vec1.ky() + vec1.kz() * vec1.kz() ));
+    length2 = _random->gauss() * (thermal_velocity/sqrt(2)) * (1.0/  sqrt(vec2.kx() * vec2.kx() + vec2.ky() * vec2.ky() + vec2.kz() * vec2.kz() )  );
+    length3 = _random->gauss() * (thermal_velocity/sqrt(2)) * (1.0/  sqrt(vec3.kx() * vec3.kx() + vec3.ky() * vec3.ky() + vec3.kz() * vec3.kz() )  );
+
+    result_x = length1 * vec1.kx() + length2 * vec2.kx() + length3 * vec3.kx();
+    result_y = length1 * vec1.ky() + length2 * vec2.ky() + length3 * vec3.ky();
+    result_z = length1 * vec1.kz() + length2 * vec2.kz() + length3 * vec3.kz();
+
+    return Direction(result_x,result_y, result_z);
+
+
+
+
+}

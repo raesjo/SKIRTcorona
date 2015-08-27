@@ -212,3 +212,23 @@ Position Random::position(const Box& box)
 }
 
 //////////////////////////////////////////////////////////////////////
+
+double
+Random::scatterphasefunction(double p)
+{
+    double random;
+    if (p==0.0){
+        random = asin( sqrt( uniform() )  );
+    }
+    else{
+        double X = uniform();
+        double numerator = pow(2.0,2.0/3.0) * p * pow(( sqrt(p*p*p* (4.0 + p*(3.0+p)*(3.0+p)*(1.0-2.0*X)*(1.0-2.0*X)) ) + (p*p*(3.0+p-2.0*(3.0+p)*X) ) ),1.0/3.0);
+        double denominator = -2.0 * p  + pow(2.0,1.0/3.0) * pow((sqrt(p*p*p*(4.0+p*(3.0+p)*(3.0+p)*(1.0-2.0*X)*(1.0-2.0*X))) + p*p*(3.0+p-2.0*(3.0+p)*X)),2.0/3.0);
+        //we divinde denominator by numerator here, because we want the arcsec of numerator/denominator and arccos(1/x) = arcsec(x)
+        random = acos(denominator/numerator);
+    }
+
+    return random;
+}
+
+//////////////////////////////////////////////////////////////////////
