@@ -20,7 +20,9 @@
 #include "Random.hpp"
 #include "StellarSystem.hpp"
 #include "TimeLogger.hpp"
+#include "Units.hpp"
 #include "WavelengthGrid.hpp"
+#include "Direction.hpp"
 
 using namespace std;
 
@@ -472,18 +474,50 @@ void MonteCarloSimulation::simulatescattering(PhotonPackage* pp)
     // Randomly select a dust mix; the probability of each dust component h is weighted by kappasca(h)*rho(m,h)
     DustMix* mix = _ds->randomMixForPosition(pp->position(), pp->ell());
 
- //   int cellnumber = _ds->whichcell(pp->position());
- //   int dens = _ds->density(cellnumber,0);
+
+
+    double freq = pp->ell() / Units::c();   //frequency in external reference frame
+    Direction ki = pp->direction();        //incoming photon direction
+    int m = _ds->whichcell(pp->position());
+    //double rho = _ds->density(m,0.0);
+    double Tgas = _ds->temperature(m,0.0);
+    Vec vBulk = _ds->bulkVelocity(m,0.0);
+
+
+
+    //calculating necessary properties of scattering cel
+    double nu0 = 2.455e15;
+    double nuL = 9.936e7;  //natural line width
+    double vTh = sqrt((2.0*Units::k()*Tgas)/Units::massproton());
+    double nuD = (vTh * nu0)/Units::c();
+    double x = (freq - nu0)/nuD;
+    double a = nuL/(2.0*nuD);
+
+    //calculating outgoing photon direction
+    double theta = mix-> hydrogenscatterangle(x,a);
+    double phi = _random->uniform()*2*M_PI;
+    Direction ko = mix->scatterDirection(theta,phi,ki);
+
+
+    //determining the velocity of the scattering atom
+    double uPara = thermalvelocitydistribution( a, x, 0.0 );  //velocity of scattering atom in the direction of incoming photon
+    Vec vThAtom = mix->scatteringatomdirection(uPara, ki );
+    Vec vAtom = Vec(vThAtom.x() + vBulk.x() ,vThAtom.y() +vBulk.y()  , vThAtom.z() + vBulk.z()  );
+
+    double kiDotv = ki.kx()*vAtom.x()+ki.ky()*vAtom.y() + ki.kz()*vAtom.z();
+    double koDotv = ko.kx()*vAtom.x()+ko.ky()*vAtom.y() + ko.kz()*vAtom.z();
+
+    double freqObs = freq * ((Units::c() - kiDotv)/Units::c());
+    double freqRemit = freqObs * (Units::c()/(Units::c()-koDotv));
+    //double xo = (freqRemit - nu0)/nuD;
+    double wavelength = freqRemit * Units::c();
+    pp->setWavelength(wavelength);
+
     // Now perform the scattering using this dust mix
-    Direction bfknew = mix->scatteringDirectionAndPolarization(pp, pp);
-    // Direction bfkold = pp->direction();
+    //Direction bfknew = mix->scatteringDirectionAndPolarization(pp, pp);
 
 
-    //double freq = pp->ell();
-    //double velocity1 = thermalvelocitydistribution(1.0,freq,0.0);
-    //Direction atomvelocity = mix->scatteringatomdirection(velocity1, pp->direction() , thermal_velocity);
-    //pp->setWavelength(1.0);
-    pp->scatter(bfknew);
+    pp->scatter(ko);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -528,3 +562,6 @@ double MonteCarloSimulation::thermalvelocitydistribution(double a,double x, doub
 
     return u_parallel;
 }
+
+/////////////////////////////////////////////////////////////////////////
+

@@ -573,19 +573,19 @@ namespace
         }
         double operator() (int m, Direction in)
         {
-            double linecentre = 2.455e15;
-            double thermalVelocity = sqrt((2.0*Units::k()*_ds->temperature(m,0.0))/Units::massproton());
-            double dopplerwidth = (thermalVelocity * linecentre)/Units::c();
-            double relativeFrequency = (Frequency - linecentre)/dopplerwidth;
-            double parallelVelocity = in.kx()*_ds->bulkVelocity(m,0.0).x()+in.ky()*_ds->bulkVelocity(m,0.0).y() + in.kz()*_ds->bulkVelocity(m,0.0).z();
-            double observedFrequency = relativeFrequency - parallelVelocity/thermalVelocity - (relativeFrequency*parallelVelocity)/Units::c();
+            double nu0 = 2.455e15;  //linecentre
+            double vThermal = sqrt((2.0*Units::k()*_ds->temperature(m,0.0))/Units::massproton());
+            double nuD = (vThermal * nu0)/Units::c();  //doppler width
+            double x = (Frequency - nu0)/nuD;  //relative frequency
+            double kDotv = in.kx()*_ds->bulkVelocity(m,0.0).x()+in.ky()*_ds->bulkVelocity(m,0.0).y() + in.kz()*_ds->bulkVelocity(m,0.0).z(); //parallel velocity
+            double xObs = x - kDotv/vThermal - (x*kDotv)/Units::c();  //frequency in scattering atom's reference frame
 
-            double naturalLineWidth = 9.936e7;
-            double relativeLineWidth = naturalLineWidth/(2.0*dopplerwidth);
-            double constant = (0.4162 * sqrt(M_PI) * 1.60217656535e-19)/ ( 4*M_PI*8.854187817624e-12*Units::masselectron()*Units::c() );
+            double nuL = 9.936e7;  //natural line width
+            double a = nuL/(2.0*nuD);  //relative line width
+            double constant = (0.4162 * sqrt(M_PI) * 1.60217656535e-19)/ ( 4*M_PI*8.854187817624e-12*Units::masselectron()*Units::c() ); //constant factor of optical depth calculation
 
-            double rhov = (constant / dopplerwidth) * _ds->voigt(relativeLineWidth,observedFrequency);
-            return rhov;
+            double result = (constant / nuD) * _ds->voigt(a,xObs);
+            return result;
         }
     };
 }
@@ -918,7 +918,6 @@ bool DustSystem::writeCellsCrossed() const
 {
     return _writeCellsCrossed;
 }
-
 //////////////////////////////////////////////////////////////////////
 
 int DustSystem::dimension() const
@@ -1029,6 +1028,9 @@ double DustSystem::voigt(double a, double x) const
     if(zeta > 0.0){
         double PiZeta = 5.678 * pow(zeta,4.0) - 9.207 * pow(zeta,3.0) + 4.421 * pow(zeta,2.0) + 0.1117 * zeta;
         q = (1.0+(21.0/x*x)) * (a/(M_PI*(x*x+1.0)))*PiZeta;
+    }
+    else{
+        q = 0;
     }
     return (q * sqrt(M_PI) + exp(-x*x));
 }

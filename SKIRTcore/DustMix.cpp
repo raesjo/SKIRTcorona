@@ -805,7 +805,7 @@ double DustMix::hydrogenscatterangle(double x, double a)
 
 ////////////////////////////////////////////////////////////////////////
 
-Direction DustMix::scatteringatomdirection(double length, Direction vector, double thermal_velocity)
+Vec DustMix::scatteringatomdirection(double length, Direction vector)
 {
 
     double A,B,C;
@@ -829,16 +829,36 @@ Direction DustMix::scatteringatomdirection(double length, Direction vector, doub
     }
 
     length1 = length * (1.0/sqrt(vec1.kx() * vec1.kx() + vec1.ky() * vec1.ky() + vec1.kz() * vec1.kz() ));
-    length2 = _random->gauss() * (thermal_velocity/sqrt(2)) * (1.0/  sqrt(vec2.kx() * vec2.kx() + vec2.ky() * vec2.ky() + vec2.kz() * vec2.kz() )  );
-    length3 = _random->gauss() * (thermal_velocity/sqrt(2)) * (1.0/  sqrt(vec3.kx() * vec3.kx() + vec3.ky() * vec3.ky() + vec3.kz() * vec3.kz() )  );
+    double R1 = _random->uniform();
+    double R2 = _random->uniform();
+    length2 = sqrt(   ( -log10(R1)/log10(exp(1.0)) )   )*cos(2*M_PI*R2);
+    length3 = sqrt(   ( -log10(R1)/log10(exp(1.0)) )   )*sin(2*M_PI*R2);
 
     result_x = length1 * vec1.kx() + length2 * vec2.kx() + length3 * vec3.kx();
     result_y = length1 * vec1.ky() + length2 * vec2.ky() + length3 * vec3.ky();
     result_z = length1 * vec1.kz() + length2 * vec2.kz() + length3 * vec3.kz();
 
-    return Direction(result_x,result_y, result_z);
-
-
-
+    return Vec(result_x,result_y, result_z);
 
 }
+
+Direction DustMix::scatterDirection (double theta, double phi, Direction in)
+{
+    double cosphi = cos(phi);
+    double sinphi = sin(phi);
+    double costheta = cos(theta);
+    double sintheta = sin(theta);
+
+    double kx,ky,kz;
+    in.cartesian(kx,ky,kz);
+    double kxnew,kynew,kznew;
+
+    double root = sqrt(fabs((1.0-kz)*(1.0+kz)));
+    kxnew = sintheta/root*(-kx*kz*cosphi+ky*sinphi) + kx*costheta;
+    kynew = -sintheta/root*(ky*kz*cosphi+kx*sinphi) + ky*costheta;
+    kznew = root*sintheta*cosphi + kz*costheta;
+
+    return Direction(kxnew,kynew,kznew);
+}
+
+

@@ -63,6 +63,8 @@ QString ForsteriteGrainComposition::name() const
         return "Crystalline_Forsterite";
     case Amorphous:
         return "Amorphous_Forsterite";
+    default:
+        return "error";
     }
 }
 

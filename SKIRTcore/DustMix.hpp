@@ -357,6 +357,21 @@ public:
         dust population when it would be embedded in the specified radiation field. */
     double equilibrium(const Array& Jv, int c) const;
 
+    /** This function returns the angle under which a photon scatters after scattering on a hydrogen atom. It uses
+        scpf function to determine the correct angle
+        depending upon the frequency and natural line width.
+    */
+    double hydrogenscatterangle(double x, double a);
+
+    /** The function returns a direction that stands for the thermal velocity of the atom responible for the scattering.
+        It uses the velocity component in the propagation direction of the photon (before scattering), the propagation
+        direction itself and the temperature. The velocity component in the propagation direction of the photon is to
+        be calculated using the thermalvelocitydistribution function of MonteCarloSimulation.cpp.
+    */
+    Vec scatteringatomdirection(double length, Direction vector);
+
+    Direction scatterDirection (double theta, double phi, Direction in);
+
 private:
     /** This function returns a random scattering angle \f$\theta\f$ sampled from the phase
         function for a given wavelength index \f$\ell\f$. */
@@ -367,18 +382,7 @@ private:
         at wavelength index \f$\ell\f$. */
     double samplePhi(int ell, double theta, double polDegree) const;
 
-    /** This function returns the angle under which a photon scatters after scattering on a hydrogen atom. It uses
-        the scatterdirectiondistribution37 and scatterdirectiondistribution1 functions to determine the correct angle
-        depending upon the frequency and natural line width.
-    */
-    double hydrogenscatterangle(double x, double a);
 
-    /** The function returns a direction that stands for the thermal velocity of the atom responible for the scattering.
-        It uses the velocity component in the propagation direction of the photon (before scattering), the propagation
-        direction itself and the temperature. The velocity component in the propagation direction of the photon is to
-        be calculated using the thermalvelocitydistribution function of MonteCarloSimulation.cpp.
-    */
-    Direction scatteringatomdirection(double length, Direction vector, double thermal_velocity);
 
     //======================== Data Members ========================
 
